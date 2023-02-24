@@ -16,7 +16,7 @@ namespace CouponManager.Services.Coupons
 
         [FirestoreProperty]
         [Required]
-        [Range(0, 100, ErrorMessage = "The field must be less than 100.")]
+        [Range(0, 100, ErrorMessage = "Coupon Value must be less than 100.")]
         public int CouponValue { get; set; }
 
         [FirestoreProperty]

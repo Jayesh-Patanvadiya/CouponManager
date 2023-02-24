@@ -18,14 +18,14 @@ namespace CouponManager.Controllers
         public async Task<CustomFields> CreateCustomField([FromBody] CustomFields customField)
         {
 
-            var createResult = await _customFieldsService.CreateCustomFields(customField);
+            var createResult = await _customFieldsService.CreateCustomField(customField);
             return createResult;
 
         }
         [HttpGet]
-        public async Task<List<CustomFields>> GetAllCustomFieldss()
+        public async Task<List<CustomFields>> GetAllCustomFields()
         {
-            return await _customFieldsService.GetAllCustomFieldss();
+            return await _customFieldsService.GetAllCustomFields();
         }
 
         [HttpGet("customFieldid")]
@@ -39,13 +39,13 @@ namespace CouponManager.Controllers
         public async Task<CustomFields> UpdateCustomFields([FromBody] CustomFields customField)
         {
 
-            return await _customFieldsService.UpdateCustomFields(customField);
+            return await _customFieldsService.UpdateCustomField(customField);
         }
 
         [HttpDelete]
         public async Task<string> DeleteCustomFields(string customFieldid)
         {
-            return await _customFieldsService.DeleteCustomFields(customFieldid);
+            return await _customFieldsService.DeleteCustomField(customFieldid);
         }
     }
 }

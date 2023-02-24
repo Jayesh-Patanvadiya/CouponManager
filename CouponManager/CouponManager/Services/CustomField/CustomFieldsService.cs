@@ -1,8 +1,6 @@
-﻿using CouponManager.Services.Coupons;
-using Google.Cloud.Firestore;
-using Google.Type;
-using System.Reflection;
-using System.Text.Json;
+﻿using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using System.Collections;
 
 namespace CouponManager.Services.CustomField
 {
@@ -23,26 +21,55 @@ namespace CouponManager.Services.CustomField
 
 
 
-        public async Task<CustomFields> CreateCustomFields(CustomFields customField)
+        public async Task<CustomFields> CreateCustomField(CustomFields customField)
         {
             try
             {
-                //var test = customField.MultipleChoiceOptions.ValueKind;
-               
-                //var test2 = Convert.ToString( customField.MultipleChoiceOptions);
+                dynamic MultipleChoiceOptions;
 
-                var customFields = new CustomFields()
+                if (customField.FieldType == 1)
+                {
+                    MultipleChoiceOptions = Convert.ToString(customField.MultipleChoiceOptions);
+                }
+                if (customField.FieldType == 2)
+                {
+                    var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                    MultipleChoiceOptions = Convert.ToInt64(data);
+                }
+                else if (customField.FieldType == 3)
+                {
+                    var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                    MultipleChoiceOptions = Convert.ToBoolean(data);
+                }
+                else if (customField.FieldType == 4)
+                {
+                    var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                    MultipleChoiceOptions = new ArrayList();
+                    foreach (var field in data)
+                    {
+                        MultipleChoiceOptions.Add(field.Value);
+                    }
+                }
+                else
+                {
+                    MultipleChoiceOptions = Convert.ToString(customField.MultipleChoiceOptions);
+                }
+
+                var customFieldsSave = new CustomFields()
                 {
                     ClientId = customField.ClientId,
                     FieldName = customField.FieldName,
                     FieldType = customField.FieldType,
                     IsVisibleConditionFieldId = customField.IsVisibleConditionFieldId,
                     IsVisibleConditionFieldValue = customField.IsVisibleConditionFieldValue,
-                    MultipleChoiceOptions = customField.MultipleChoiceOptions
+                    MultipleChoiceOptions = MultipleChoiceOptions
                 };
 
                 CollectionReference colRef = fireStoreDb.Collection("customfields");
-                var result = await colRef.AddAsync(customField);
+                var result = await colRef.AddAsync(customFieldsSave);
 
                 customField.Id = result.Id;
                 return customField;
@@ -55,11 +82,11 @@ namespace CouponManager.Services.CustomField
 
         }
 
-        public async Task<List<CustomFields>> GetAllCustomFieldss()
+        public async Task<List<CustomFields>> GetAllCustomFields()
         {
             Query customFieldQuery = fireStoreDb.Collection("customfields");
             QuerySnapshot customFieldQuerySnapshot = await customFieldQuery.GetSnapshotAsync();
-            List<CustomFields> CustomFieldss = new List<CustomFields>();
+            List<CustomFields> customFieldsList = new List<CustomFields>();
 
             foreach (DocumentSnapshot documentSnapshot in customFieldQuerySnapshot.Documents)
             {
@@ -67,18 +94,63 @@ namespace CouponManager.Services.CustomField
                 {
                     CustomFields customFields = documentSnapshot.ConvertTo<CustomFields>();
                     customFields.Id = documentSnapshot.Id;
-                    CustomFieldss.Add(customFields);
+                    customFieldsList.Add(customFields);
                 }
             }
-            return CustomFieldss;
+            return customFieldsList;
 
         }
 
-        public async Task<CustomFields> UpdateCustomFields(CustomFields customField)
+        public async Task<CustomFields> UpdateCustomField(CustomFields customField)
         {
-            DocumentReference ezCustomFieldss = fireStoreDb.Collection("customfields").Document(customField.Id);
-            await ezCustomFieldss.SetAsync(customField, SetOptions.Overwrite);
-            return customField;
+            dynamic MultipleChoiceOptions;
+
+            if (customField.FieldType == 1)
+            {
+                MultipleChoiceOptions = Convert.ToString(customField.MultipleChoiceOptions);
+            }
+            if (customField.FieldType == 2)
+            {
+                var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                MultipleChoiceOptions = Convert.ToInt64(data);
+            }
+            else if (customField.FieldType == 3)
+            {
+                var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                MultipleChoiceOptions = Convert.ToBoolean(data);
+            }
+            else if (customField.FieldType == 4)
+            {
+                var data = JsonConvert.DeserializeObject<dynamic>(customField.MultipleChoiceOptions.ToString());
+
+                MultipleChoiceOptions = new ArrayList();
+                foreach (var field in data)
+                {
+                    MultipleChoiceOptions.Add(field.Value);
+                }
+            }
+            else
+            {
+                MultipleChoiceOptions = Convert.ToString(customField.MultipleChoiceOptions);
+            }
+
+
+
+
+            var customFieldsUpdate = new CustomFields()
+            {
+                ClientId = customField.ClientId,
+                FieldName = customField.FieldName,
+                FieldType = customField.FieldType,
+                IsVisibleConditionFieldId = customField.IsVisibleConditionFieldId,
+                IsVisibleConditionFieldValue = customField.IsVisibleConditionFieldValue,
+                MultipleChoiceOptions = MultipleChoiceOptions
+            };
+            DocumentReference customFields = fireStoreDb.Collection("customfields").Document(customField.Id);
+            await customFields.SetAsync(customFieldsUpdate, SetOptions.Overwrite);
+            return customFieldsUpdate;
 
         }
         public async Task<CustomFields> GetCustomFieldsById(string customFieldId)
@@ -106,7 +178,7 @@ namespace CouponManager.Services.CustomField
             }
 
         }
-        public async Task<string> DeleteCustomFields(string customFieldId)
+        public async Task<string> DeleteCustomField(string customFieldId)
         {
             try
             {

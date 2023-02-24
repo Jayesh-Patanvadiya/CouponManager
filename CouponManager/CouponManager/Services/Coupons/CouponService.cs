@@ -43,18 +43,19 @@ namespace CouponManager.Services.Coupons
         {
             Query couponQuery = fireStoreDb.Collection("coupons");
             QuerySnapshot couponQuerySnapshot = await couponQuery.GetSnapshotAsync();
-            List<Coupon> Coupons = new List<Coupon>();
+            List<Coupon> coupons = new List<Coupon>();
 
             foreach (DocumentSnapshot documentSnapshot in couponQuerySnapshot.Documents)
             {
                 if (documentSnapshot.Exists)
                 {
-                    Coupon coupons = documentSnapshot.ConvertTo<Coupon>();
-                    coupons.Id = documentSnapshot.Id;
-                    Coupons.Add(coupons);
+                    Coupon coupon = documentSnapshot.ConvertTo<Coupon>();
+                    coupon.Id = documentSnapshot.Id;
+                    coupons.Add(coupon);
                 }
             }
-            return Coupons;
+
+            return coupons.Where(x=>x.ExpirationDate >= DateTime.Now.Date).ToList();
 
         }
 
