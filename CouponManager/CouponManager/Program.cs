@@ -1,5 +1,4 @@
 using CouponManager.Services.Coupons;
-using CouponManager.Services.CustomField;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +9,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ICouponService, CouponService>();
-builder.Services.AddSingleton<ICustomFieldsService, CustomFieldsService>();
 
 var app = builder.Build();
 
